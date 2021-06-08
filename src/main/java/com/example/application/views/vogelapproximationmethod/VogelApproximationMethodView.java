@@ -1,12 +1,9 @@
 package com.example.application.views.vogelapproximationmethod;
 
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -15,11 +12,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteAlias;
-import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.Locale;
 
 @Route(value = "vam")
 @RouteAlias(value = "")
@@ -33,28 +29,36 @@ public class VogelApproximationMethodView extends LitTemplate {
     private NumberField demandTextField;
     @Id("createtableButton")
     private Button createtableButton;
-    @Id("tableLayout")
-    private VerticalLayout tableLayout;
 
+    @Id("demandLayout")
+    private HorizontalLayout demandLayout;
+    @Id("demandheading")
+    private H4 demandheading;
+    @Id("supplyheading")
+    private H4 supplyheading;
+    @Id("addTo")
+    private VerticalLayout addTo;
 
-    // This is the Java companion file of a design
-    // You can find the design file inside /frontend/views/
+    @Id("supplyLayout")
+    private HorizontalLayout supplyLayout;
 
+    private HorizontalLayout staticDlayout ;
     private int forRow;
     private int forColumn;
-    @Id("staticDemandsection")
-    private HorizontalLayout staticDemandsection;
-    @Id("staticSupplyNumbers")
-    private VerticalLayout staticSupplyNumbers;
-    @Id("supplyvericalTextField")
-    private VerticalLayout supplyvericalTextField;
+    private ArrayList<NumberField> supplyFieldsList;
+    private ArrayList<NumberField> demandFieldsList;
 
-    ArrayList<ArrayList<TextField>> costTextFields;
-    @Id("costLayout")
-    private VerticalLayout costLayout;
+
 
     public VogelApproximationMethodView() {
-        costTextFields = new ArrayList<>();
+
+        staticDlayout = new HorizontalLayout();
+
+        changeHeadingVisibility(demandheading, false);
+        changeHeadingVisibility(supplyheading, false);
+
+        supplyFieldsList = new ArrayList<NumberField>();
+        demandFieldsList = new ArrayList<NumberField>();
 
         forRow = 3;
         forColumn = 4;
@@ -73,31 +77,67 @@ public class VogelApproximationMethodView extends LitTemplate {
     }
 
     private void performGridCreation(ClickEvent<Button> buttonClickEvent) {
-        staticDemandsection.removeAll();
-        staticSupplyNumbers.removeAll();
-        costLayout.removeAll();
+        clearAllLayout();
 
-        Notification.show("These are my values R = " + forRow + "\t C = " + forColumn);
+        createSupplyFields();
+        createDemandFields();
 
-        createStaticHeaderForDemand();
-        createStaticHeaderForSupply();
+        changeHeadingVisibility(supplyheading, true);
+        changeHeadingVisibility(demandheading, true);
 
-        // cost table
-/*        for (int row = 0; row < forRow; row++) {
-            costTextFields.add(new ArrayList<>());
-            HorizontalLayout rowLayout = new HorizontalLayout();
+        createStaticDemand();
+        createCostTable();
 
-            for (int column = 0; column < forColumn; column++) {
-                TextField field = new TextField();
-                getCostTextFields().get(row).add(field);
 
-                rowLayout.add(field);
+
+
+    }
+
+
+    private void createCostTable() {
+
+        for (int row = 0; row < forRow; row++) {
+            HorizontalLayout layout = new HorizontalLayout();
+
+            for (int column = 0; column < forColumn + 1; column++) {
+
+                if (column == 0) {
+                    TextField field = new TextField();
+                    field.setValue("S" + (row + 1));
+                    field.setEnabled(false);
+                    field.getStyle().set("width", "16%");
+                    field.getStyle().set("text-align-last", "center");
+                    layout.add(field);
+                } else {
+                    NumberField field = new NumberField();
+                    field.setPlaceholder("");
+                    field.setEnabled(true);
+                    field.getStyle().set("text-align-last", "center");
+                    layout.add(field);
+                }
             }
+            addTo.add(layout);
+        }
 
-            costLayout.add(rowLayout);
+    }
 
-        }*/
+    private void createStaticDemand() {
+        for (int i = 0; i < forColumn; i++) {
 
+            TextField field = new TextField();
+            System.out.println("i = " + i);
+            field.setValue("D" + (i + 1));
+            field.setEnabled(false);
+            field.getStyle().set("width", "16%");
+            field.getStyle().set("text-align-last", "center");
+            staticDlayout.add(field);
+        }
+        staticDlayout.getStyle().set("justify-content","flex-start");
+        staticDlayout.getStyle().set("align-items","flex-start");
+        staticDlayout.getStyle().set("margin-left", "10%");
+
+        System.out.println("staticDlayout = " + staticDlayout.getChildren().count());
+        addTo.add(staticDlayout);
 
     }
 
@@ -108,46 +148,58 @@ public class VogelApproximationMethodView extends LitTemplate {
 
     }
 
-    private void createStaticHeaderForDemand() {
-        for (int i = 0; i < forColumn + 1; i++) {  // 1 for supply header
-
-            if (forColumn == i) {
-                H4 supplyLabel = new H4("Supply");
-                staticDemandsection.add(supplyLabel);
-                supplyLabel.setMaxWidth("15%");
-                break;
-            }
-            TextField staticField = new TextField();
-            staticField.setValue("D" + (i + 1));
-            staticField.setMaxWidth("15%");
-            staticField.setEnabled(false);
-            staticDemandsection.add(staticField);
-        }
-    }
-
-    private void createStaticHeaderForSupply() {
-        for (int i = 0; i < forRow + 1; i++) {
-
-            if (forRow == i) {
-                H4 demandLabel = new H4("Demand");
-                staticSupplyNumbers.add(demandLabel);
-                break;
-            }
-            TextField staticField = new TextField();
-            staticField.setValue("S" + (i + 1));
-            staticField.setEnabled(false);
-            staticField.setMaxWidth("15%");
-//            staticField.getStyle().set("width", "8%");
+    private void createDemandFields() {
+        for (int i = 0; i < forColumn; i++) {
+            NumberField staticField = new NumberField();
+            staticField.setPlaceholder("D" + (i + 1));
+            staticField.setEnabled(true);
             staticField.getStyle().set("text-align-last", "center");
-            staticSupplyNumbers.add(staticField);
+
+            demandFieldsList.add(staticField);
+            demandLayout.add(staticField);
+
         }
     }
 
-    public ArrayList<ArrayList<TextField>> getCostTextFields() {
-        return costTextFields;
+    private void createSupplyFields() {
+        for (int i = 0; i < forRow; i++) {
+            NumberField staticField = new NumberField();
+            staticField.setPlaceholder("S" + (i + 1));
+            staticField.setEnabled(true);
+            staticField.setId("supply" + (i + 1));
+            staticField.getStyle().set("text-align-last", "center");
+
+            supplyFieldsList.add(staticField);
+            supplyLayout.add(staticField);
+        }
     }
 
-    public void setCostTextFields(ArrayList<ArrayList<TextField>> costTextFields) {
-        this.costTextFields = costTextFields;
+    private void clearAllLayout() {
+        addTo.removeAll();
+        staticDlayout.removeAll();
+        demandLayout.removeAll();
+        supplyLayout.removeAll();
     }
+
+    public void changeHeadingVisibility(H4 allHeading, boolean b) {
+        allHeading.setVisible(b);
+
+
+    }
+
+    private void findComponentById(ArrayList<NumberField> supplyFieldsList, String id) {
+        for (Component child : supplyFieldsList) {
+            String s = child.getId().get().toLowerCase(Locale.ROOT);
+            if (id.equals(s)) {
+                System.out.println("foudnit");
+
+
+            } else if (child instanceof HasComponents) { // recursively go through all children that themselves have children
+                System.out.println("Not found");
+            }
+        }
+//        return null; // none was found
+    }
+
+
 }
