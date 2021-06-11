@@ -95,7 +95,6 @@ public class VogelSolution {
 
         } else {  // balanced.
 
-//            while (totalDemand != 0 || totalSupply != 0) {
             while (true) {
                 implementRowPenalty();  // working fine
                 implementColumnPenalty();  // working fine.
@@ -103,12 +102,8 @@ public class VogelSolution {
                 getRowMaxValue();  //
                 getColumnMaxValue();
 
-//                System.out.println("demands = " + demands.toString() + "\t\tsuppy =" + supplies.toString());
-//                System.out.println("rowMaxValue = " + rowMaxValue + "\t\t" + "index " + rowMaxIndex + "\t\tcolumnMaxValue = " + columnMaxValue + "\t\t" + "index " + columnMaxIndex);
-
-
                 System.out.println("Before : \tcellRow  = " + cellRow + "\t\tcell column" + cellColumn + "\t\t value = " + cellMinValue);
-                if (cellRow != -1  && cellColumn != -1){
+                if (cellRow != -1 && cellColumn != -1) {
 
                     if (rowMaxValue > columnMaxValue) {  // row penalty apply .
                         System.out.println("performing Row Penalty");
@@ -124,7 +119,7 @@ public class VogelSolution {
 
                             demands.set(cellColumn, (demands.get(cellColumn) - min));
                             System.out.println("row-->Will Skip Row of = " + cellRow + "\t\t" + demands.toString());
-                            columnToSkim[cellColumn] = true;
+                            rowToSkim[cellRow] = true;
 
                             rowPenalty.set(cellRow, -1);
                         } else {
@@ -168,7 +163,7 @@ public class VogelSolution {
                         }
 
                     }
-                    
+                printtable();
 
                     for (ArrayList<Cell> list : costMatrix) {
                         for (Cell cellSet : list) {
@@ -178,7 +173,7 @@ public class VogelSolution {
                     }
                     System.out.println("\n\n\n");
 
-                    if (areAllTrue(columnToSkim) && areAllTrue(rowToSkim)) {
+                    if (areAllTrue(columnToSkim) || areAllTrue(rowToSkim)) {
                         System.out.println("about to break!");
                         break;
                     }
@@ -187,9 +182,7 @@ public class VogelSolution {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }*/
-                }
-
-                else
+                } else
                     break;
             }
 
@@ -243,19 +236,19 @@ public class VogelSolution {
     }
 
     private void implementRowPenalty() {
-        int lowestValue = 0  ;
-        int secondLowestValue = 0 ;
+        int lowestValue = 0;
+        int secondLowestValue = 0;
         for (int row = 0; row < noOfSupplies; row++) {
-             lowestValue = Integer.MAX_VALUE;
-             secondLowestValue = Integer.MAX_VALUE;
+            lowestValue = Integer.MAX_VALUE;
+            secondLowestValue = Integer.MAX_VALUE;
             if (rowToSkim[row]) {
                 continue;
             } else {
                 for (int col = 0; col < noOfDemands; col++) {
-
                     if (columnToSkim[col]) {
                         continue;
                     } else {
+//                        System.out.println("secondLowestValue = " + secondLowestValue +"costMatrix.getValuePerCell() = " + costMatrix.get(row).get(col).getValuePerCell());
                         if (secondLowestValue >= costMatrix.get(row).get(col).getValuePerCell()) {
                             secondLowestValue = costMatrix.get(row).get(col).getValuePerCell();
 
@@ -270,19 +263,25 @@ public class VogelSolution {
 
                 }
             }
+/*            if (secondLowestValue == Integer.MAX_VALUE){
+                System.out.println("before mrwana " + lowestValue + "\t\t" + secondLowestValue);
+                secondLowestValue = lowestValue;
+                lowestValue = 0 ;
+                System.out.println("after mrwana" + lowestValue + "\t\t" + secondLowestValue);
+            }*/
             rowPenalty.set(row, (secondLowestValue - lowestValue));
         }
-//        System.out.println("rowPenalty = " + rowPenalty.toString());
+        System.out.println("rowPenalty = " + rowPenalty.toString());
 
     }
 
     private void implementColumnPenalty() {
-        int lowestValue = 0  ;
-        int secondLowestValue = 0 ;
+        int lowestValue = 0;
+        int secondLowestValue = 0;
 
         for (int col = 0; col < noOfDemands; col++) {
-             lowestValue = Integer.MAX_VALUE;
-             secondLowestValue = Integer.MAX_VALUE;
+            lowestValue = Integer.MAX_VALUE;
+            secondLowestValue = Integer.MAX_VALUE;
 
             if (columnToSkim[col]) {
                 continue;
@@ -304,10 +303,13 @@ public class VogelSolution {
                     }
                 }
             }
-
+            if (secondLowestValue == Integer.MAX_VALUE){
+                secondLowestValue = lowestValue;
+                lowestValue = 0 ;
+            }
             columnPenalty.set(col, (secondLowestValue - lowestValue));
         }
-//        System.out.println("columnPenalty = " + columnPenalty.toString());
+        System.out.println("columnPenalty = " + columnPenalty.toString());
     }
 
     private void getRowMaxValue() {
@@ -334,7 +336,25 @@ public class VogelSolution {
     }
 
     public boolean areAllTrue(boolean[] array) {
-        for (boolean b : array) if (!b) return false;
+        for (boolean b : array)
+            if (!b) {
+                return false;
+            }
         return true;
+    }
+
+    public void printtable(){
+        System.out.print("Row Skip :   ");
+
+        for ( boolean b : rowToSkim){
+            System.out.print(b+"\t");
+        }
+        System.out.println();
+
+        System.out.print("column Skip :  ");
+        for ( boolean b : columnToSkim){
+            System.out.print(b+"\t");
+        }
+        System.out.println();
     }
 }
