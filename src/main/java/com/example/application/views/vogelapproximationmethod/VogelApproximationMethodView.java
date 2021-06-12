@@ -3,12 +3,16 @@ package com.example.application.views.vogelapproximationmethod;
 import com.example.application.Asset.VogelSolution;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
@@ -62,6 +66,8 @@ public class VogelApproximationMethodView extends LitTemplate {
     private ArrayList<Integer> supply;
     private ArrayList<Integer> demand;
     private ArrayList<ArrayList<Integer>> cost;
+    @Id("outputLayout")
+    private HorizontalLayout outputLayout;
 
     public VogelApproximationMethodView() {
         forRow = 3;
@@ -82,8 +88,6 @@ public class VogelApproximationMethodView extends LitTemplate {
             forColumn = valueChangeEvent.getValue().intValue();
         });
 
-
-
         createtableButton.addClickListener(this::performGridCreation);
         createSubmitButton();
         performButton.addClickListener(this::performSubmitButtonAction);
@@ -101,7 +105,6 @@ public class VogelApproximationMethodView extends LitTemplate {
 
         createStaticDemand_RowPenalty();
         createCostTable();
-
         createOptimalSolutionLayout();
 
     }
@@ -147,7 +150,22 @@ public class VogelApproximationMethodView extends LitTemplate {
         vogelSolution.passPenaltyTextFields(rowsPenalty, columnsPenalty);
         vogelSolution.solve();
 
+        VerticalLayout layout =  new VerticalLayout();
+        H3 tableHead =  new H3("Final Table");
+        TextArea textArea = new TextArea();
+        textArea.setValue(vogelSolution.finalTableToPass());
 
+        textArea.getStyle().set("width", "20em");
+        textArea.getStyle().set("height", "9em");
+
+        layout.add(tableHead, textArea);
+        outputLayout.add(layout);
+        layout.getStyle().set("width", "auto");
+        Span result = new Span(vogelSolution.optimalEquation());
+        Label label =new Label();
+        label.setText(String.valueOf(vogelSolution.getTotalCost()));
+
+        outputLayout.add(result , label);
     }
 
     private void createCostTable() {
@@ -340,6 +358,7 @@ public class VogelApproximationMethodView extends LitTemplate {
         staticDemandLayout.removeAll();
         demandLayout.removeAll();
         supplyLayout.removeAll();
+        outputLayout.removeAll();
     }
 
     public void changeHeadingVisibility(H4 allHeading, boolean b) {

@@ -3,7 +3,7 @@ package com.example.application.Asset;
 public class Cell {
 
     private int valuePerCell;
-    private int minimumValue;
+    private int minimumValue; // by default we are going to set -1 .
 
     public Cell() {
         minimumValue =  -1 ;

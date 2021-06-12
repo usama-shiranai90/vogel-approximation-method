@@ -214,13 +214,6 @@ public class VogelSolution {
 
                     }
                     printtable();
-
-                    for (ArrayList<Cell> list : costMatrix) {
-                        for (Cell cellSet : list) {
-                            System.out.print(cellSet.getValuePerCell() + " -> " + cellSet.getMinimumValue() + "\t");
-                        }
-                        System.out.println();
-                    }
                     System.out.println("\n\n\n");
 
                     if (areAllTrue(columnToSkim) || areAllTrue(rowToSkim)) {
@@ -231,9 +224,41 @@ public class VogelSolution {
                 } else
                     break;
             }
-
-
         }
+    }
+
+    public String finalTableToPass() {
+        StringBuilder builder = new StringBuilder();
+        for (ArrayList<Cell> list : costMatrix) {
+            for (Cell cellSet : list) {
+                builder.append(cellSet.getValuePerCell()).append(" -> ").append(cellSet.getMinimumValue()).append("\t");
+            }
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
+
+    public String optimalEquation() {
+        StringBuilder builder = new StringBuilder();
+
+        int c = 0;
+        totalCost = 0;
+        for (int i = 0; i < costMatrix.size(); i++) {
+            for (int j = 0; j < costMatrix.get(i).size(); j++) {
+
+                if (costMatrix.get(i).get(j).getMinimumValue() != -1) {
+                    int value = costMatrix.get(i).get(j).getValuePerCell();
+                    int minvalue = costMatrix.get(i).get(j).getMinimumValue();
+
+                    builder.append(value).append("*").append(minvalue).append(" + ");
+                    c = builder.length();
+
+                    totalCost += value * minvalue;
+                }
+            }
+        }
+        builder.deleteCharAt(c - 2);
+        return builder.toString();
     }
 
     private void findMinimumCell() {
@@ -411,5 +436,13 @@ public class VogelSolution {
         rowsPenalty_text_field = rowsPenalty;
         columnsPenalty_text_field = columnsPenalty;
 
+    }
+
+    public int getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(int totalCost) {
+        this.totalCost = totalCost;
     }
 }
