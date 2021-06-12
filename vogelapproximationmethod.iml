@@ -240,7 +240,7 @@
     <orderEntry type="library" name="Maven: com.flowingcode.addons:simple-timer:2.1.1" level="project" />
   </component>
   <component name="designer2.settings">
-    <option name="serverIp" value="192.168.8.101" />
+    <option name="serverIp" value="192.168.8.103" />
     <option name="serverPort" value="58865" />
   </component>
 </module>

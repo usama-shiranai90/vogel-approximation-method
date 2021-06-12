@@ -1,8 +1,14 @@
 package com.example.application.Asset;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.server.Command;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -86,23 +92,67 @@ public class VogelSolution {
     public void solve() {
 
         if (totalSupply != totalDemand) {
-            Span content = new Span("The Given Problem is Unbalanced. please check demand and supply Fields.!");
-            NativeButton buttonInside = new NativeButton(" Close");
-            Notification notification = new Notification(content, buttonInside);
-            notification.setDuration(3000);
-            buttonInside.addClickListener(event -> notification.close());
-            notification.setPosition(Notification.Position.MIDDLE);
+
+            Notification errorNotification = new Notification();
+            errorNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+            Span label = new Span("The Given Problem is Unbalanced. please check demand and supply Fields");
+            Button closeButton = new Button("Close", e -> errorNotification.close());
+
+            errorNotification.setPosition(Notification.Position.MIDDLE);
+            errorNotification.add(label, closeButton);
+
+            label.getStyle().set("margin-right", "4.2rem");
+            label.getStyle().set("font-size", "0.6em");
+
+            closeButton.getStyle().set("margin-right", "0.9rem");
+            closeButton.getStyle().set("font-size", "0.8em");
+
+            errorNotification.open();
 
         } else {  // balanced.
-
+            System.out.println("im balanced");
             while (true) {
                 implementRowPenalty();  // working fine
                 implementColumnPenalty();  // working fine.
 
+                for (int i = 0; i < rowPenalty.size(); i++) {
+//                    System.out.println("row pen to add = " + rowPenalty.get(i).doubleValue());
+                    rowsPenalty_text_field.get(i).setValue(rowPenalty.get(i).doubleValue());
+                  /*  rowsPenalty_text_field.get(i).getUI().get().access(new Command() {
+                        @Override
+                        public void execute() {
+                            try {
+                                rowsPenalty_text_field.get(i).setValue(rowPenalty.get(i).doubleValue());
+                                TimeUnit.SECONDS.sleep(2);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });*/
+                }
+                for (int i = 0; i < columnPenalty.size(); i++) {
+//                    System.out.println("column pen to add = " + columnPenalty.get(i).doubleValue());
+
+                    columnsPenalty_text_field.get(i).setValue(columnPenalty.get(i).doubleValue());
+                    /*columnsPenalty_text_field.get(i).getUI().get().access(new Command() {
+                        @Override
+                        public void execute() {
+                            try {
+                                columnsPenalty_text_field.get(i).setValue(columnPenalty.get(i).doubleValue());
+                                TimeUnit.SECONDS.sleep(2);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });*/
+                }
+
+
                 getRowMaxValue();  //
                 getColumnMaxValue();
 
-                System.out.println("Before : \tcellRow  = " + cellRow + "\t\tcell column" + cellColumn + "\t\t value = " + cellMinValue);
+//                System.out.println("Before : \tcellRow  = " + cellRow + "\t\tcell column" + cellColumn + "\t\t value = " + cellMinValue);
                 if (cellRow != -1 && cellColumn != -1) {
 
                     if (rowMaxValue > columnMaxValue) {  // row penalty apply .
@@ -163,7 +213,7 @@ public class VogelSolution {
                         }
 
                     }
-                printtable();
+                    printtable();
 
                     for (ArrayList<Cell> list : costMatrix) {
                         for (Cell cellSet : list) {
@@ -177,11 +227,7 @@ public class VogelSolution {
                         System.out.println("about to break!");
                         break;
                     }
-                   /* try {
-                        TimeUnit.SECONDS.sleep(2);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }*/
+
                 } else
                     break;
             }
@@ -263,12 +309,12 @@ public class VogelSolution {
 
                 }
             }
-/*            if (secondLowestValue == Integer.MAX_VALUE){
-                System.out.println("before mrwana " + lowestValue + "\t\t" + secondLowestValue);
+            if (secondLowestValue == Integer.MAX_VALUE) {
                 secondLowestValue = lowestValue;
-                lowestValue = 0 ;
-                System.out.println("after mrwana" + lowestValue + "\t\t" + secondLowestValue);
-            }*/
+                lowestValue = 0;
+            }
+            System.out.println("secondLowestValue = " + secondLowestValue + "\t\tLowestValue = " + lowestValue);
+
             rowPenalty.set(row, (secondLowestValue - lowestValue));
         }
         System.out.println("rowPenalty = " + rowPenalty.toString());
@@ -303,9 +349,9 @@ public class VogelSolution {
                     }
                 }
             }
-            if (secondLowestValue == Integer.MAX_VALUE){
+            if (secondLowestValue == Integer.MAX_VALUE) {
                 secondLowestValue = lowestValue;
-                lowestValue = 0 ;
+                lowestValue = 0;
             }
             columnPenalty.set(col, (secondLowestValue - lowestValue));
         }
@@ -343,18 +389,27 @@ public class VogelSolution {
         return true;
     }
 
-    public void printtable(){
+    public void printtable() {
         System.out.print("Row Skip :   ");
 
-        for ( boolean b : rowToSkim){
-            System.out.print(b+"\t");
+        for (boolean b : rowToSkim) {
+            System.out.print(b + "\t");
         }
         System.out.println();
 
         System.out.print("column Skip :  ");
-        for ( boolean b : columnToSkim){
-            System.out.print(b+"\t");
+        for (boolean b : columnToSkim) {
+            System.out.print(b + "\t");
         }
         System.out.println();
+    }
+
+    private ArrayList<NumberField> rowsPenalty_text_field;
+    private ArrayList<NumberField> columnsPenalty_text_field;
+
+    public void passPenaltyTextFields(ArrayList<NumberField> rowsPenalty, ArrayList<NumberField> columnsPenalty) {
+        rowsPenalty_text_field = rowsPenalty;
+        columnsPenalty_text_field = columnsPenalty;
+
     }
 }
