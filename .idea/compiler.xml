@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="vogelapproximationmethod" target="8" />
+      <module name="vogelapproximationmethod" target="8.0" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
