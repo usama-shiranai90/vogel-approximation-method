@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.component.dependency.JsModule;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -26,6 +27,7 @@ import java.util.Locale;
 @PageTitle("Vogel Approximation Method")
 @Tag("vogel-approximation-method-view")
 @JsModule("./views/vogelapproximationmethod/vogel-approximation-method-view.ts")
+
 public class VogelApproximationMethodView extends LitTemplate {
     @Id("supplyTextField")
     private NumberField supplyTextField;
@@ -105,7 +107,6 @@ public class VogelApproximationMethodView extends LitTemplate {
 
         createStaticDemand_RowPenalty();
         createCostTable();
-        createOptimalSolutionLayout();
 
     }
 
@@ -117,14 +118,9 @@ public class VogelApproximationMethodView extends LitTemplate {
         cost = new ArrayList<>();
         rowsPenalty = new ArrayList<>();
         columnsPenalty = new ArrayList<>();
+        balancedCheckTextField = null;
     }
 
-    private void createOptimalSolutionLayout() {
-
-        HorizontalLayout layout = new HorizontalLayout();
-//        layout.getStyle().set( , );
-
-    }
 
     private void performSubmitButtonAction(ClickEvent<Button> buttonClickEvent) {
         /**
@@ -148,27 +144,32 @@ public class VogelApproximationMethodView extends LitTemplate {
 
         VogelSolution vogelSolution = new VogelSolution(supply, demand, cost);
         vogelSolution.passPenaltyTextFields(rowsPenalty, columnsPenalty);
-        vogelSolution.solve();
 
-        VerticalLayout layout =  new VerticalLayout();
-        H3 tableHead =  new H3("Final Table");
-        TextArea textArea = new TextArea();
-        textArea.setValue(vogelSolution.finalTableToPass());
+        if (vogelSolution.solve()) {
+            VerticalLayout layout = new VerticalLayout();
+            H3 tableHead = new H3("Final Table");
+            TextArea textArea = new TextArea();
+            textArea.setValue(vogelSolution.finalTableToPass());
 
-        textArea.getStyle().set("width", "20em");
-        textArea.getStyle().set("height", "9em");
+            textArea.getStyle().set("width", "20em");
+            textArea.getStyle().set("height", "9em");
 
-        layout.add(tableHead, textArea);
-        outputLayout.add(layout);
-        layout.getStyle().set("width", "auto");
-        Span result = new Span(vogelSolution.optimalEquation());
-        Label label =new Label();
-        label.setText(String.valueOf(vogelSolution.getTotalCost()));
+            layout.add(tableHead, textArea);
+            outputLayout.add(layout);
+            layout.getStyle().set("width", "auto");
+            Span result = new Span(vogelSolution.optimalEquation());
+            Label label = new Label();
+            label.setText(String.valueOf(vogelSolution.getTotalCost()));
 
-        outputLayout.add(result , label);
+            outputLayout.add(result, label);
+        }
+
+
     }
 
     private void createCostTable() {
+
+        System.out.println("forRow = " + forRow + "\t\t" + forColumn);
 
         for (int row = 0; row < forRow + 1; row++) { // plus 1 for Row pen
             HorizontalLayout layout = new HorizontalLayout();
@@ -201,7 +202,7 @@ public class VogelApproximationMethodView extends LitTemplate {
 
                         if (row == forRow) {  // add column penalty fields.
                             costTextField = new NumberField();
-//                            costTextField.setPlaceholder("column-pen");
+                            costTextField.setPlaceholder("column-pen");
                             costTextField.setValue(0.0);
                             costTextField.setEnabled(false);
                             costTextField.getStyle().set("text-align-last", "center");
@@ -209,10 +210,10 @@ public class VogelApproximationMethodView extends LitTemplate {
 
                         } else {  // cost fields.
                             costTextField = new NumberField();
-                            costTextField.setPlaceholder("cost section " + column);
+//                            costTextField.setPlaceholder("cost section " + column);
                             costTextField.setEnabled(true);
                             costTextField.getStyle().set("text-align-last", "center");
-//                        layout.add(costTextField);
+//                            layout.add(costTextField);
                             cost.get(row).add(column - 1, 0);
 
                             int finalRow = row;
@@ -228,38 +229,36 @@ public class VogelApproximationMethodView extends LitTemplate {
                     } else if (column == forColumn + 1) {  // add row penalties fields.
 
 
-                        if (row == forRow){
-                            balancedCheckTextField =  new TextField();
+                        if (row == forRow) {
+                            balancedCheckTextField = new TextField();
                             balancedCheckTextField.setHelperText("Total Supplies & Demands");
                             balancedCheckTextField.setEnabled(false);
                             balancedCheckTextField.getStyle().set("text-align-last", "center");
                             balancedCheckTextField.getStyle().set("width", "8em");
                             layout.add(balancedCheckTextField);
-                        }
-                        else
-                        {
+                        } else {
                             costTextField = new NumberField();
                             costTextField.setPlaceholder("Row-pen");
                             costTextField.setEnabled(false);
                             costTextField.getStyle().set("text-align-last", "center");
                         }
-                        if (balancedCheckTextField ==null) {
+                        if (balancedCheckTextField == null) {
                             rowsPenalty.add(costTextField);
                         }
                     }
 
-                    if (balancedCheckTextField ==null){
+                    if (balancedCheckTextField == null) {
                         layout.add(costTextField);
                     }
 
                 }
             }  // c
+
             addTo.add(layout);
 
         } // r
 
         addTo.add(performButton);
-
 
 
     }
@@ -313,8 +312,8 @@ public class VogelApproximationMethodView extends LitTemplate {
             staticField.addValueChangeListener(event -> {
                 demand.set(finalI, event.getValue().intValue());
 
-                int s_total =  supply.stream().mapToInt(a->a).sum();
-                int d_total =  demand.stream().mapToInt(a->a).sum();
+                int s_total = supply.stream().mapToInt(a -> a).sum();
+                int d_total = demand.stream().mapToInt(a -> a).sum();
 
                 balancedCheckTextField.setValue(String.valueOf(s_total == d_total));
             });
@@ -335,8 +334,8 @@ public class VogelApproximationMethodView extends LitTemplate {
             staticField.addValueChangeListener(event -> {
                 supply.set(finalI, event.getValue().intValue());
 
-                int s_total =  supply.stream().mapToInt(a->a).sum();
-                int d_total =  demand.stream().mapToInt(a->a).sum();
+                int s_total = supply.stream().mapToInt(a -> a).sum();
+                int d_total = demand.stream().mapToInt(a -> a).sum();
 
                 balancedCheckTextField.setValue(String.valueOf(s_total == d_total));
             });

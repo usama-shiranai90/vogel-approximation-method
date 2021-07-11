@@ -89,7 +89,7 @@ public class VogelSolution {
         });
     }
 
-    public void solve() {
+    public boolean solve() {
 
         if (totalSupply != totalDemand) {
 
@@ -109,6 +109,8 @@ public class VogelSolution {
             closeButton.getStyle().set("font-size", "0.8em");
 
             errorNotification.open();
+
+            return false;
 
         } else {  // balanced.
             System.out.println("im balanced");
@@ -225,6 +227,8 @@ public class VogelSolution {
                     break;
             }
         }
+
+        return true;
     }
 
     public String finalTableToPass() {
